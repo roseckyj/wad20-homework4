@@ -93,7 +93,7 @@ const testData = [
 //Mock axios.get method that our Component calls in mounted event
 jest.mock("axios",  () => ({
     get: ()=> Promise.resolve({
-            data: testData
+            data: testData,
         })
 }));
 

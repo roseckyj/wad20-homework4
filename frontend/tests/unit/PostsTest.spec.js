@@ -93,13 +93,18 @@ const testData = [
 //Mock axios.get method that our Component calls in mounted event
 jest.mock("axios",  () => ({
     get: ()=> Promise.resolve({
-            data: testData
+            data: testData,
         })
 }));
 
 describe('Posts', () => {
 
-    const wrapper = mount(Posts, {posts: testData});
+    const wrapper = mount(Posts, {
+        posts: testData,
+        localVue,
+        router,
+        store
+    });
 
     it('Renders all the posts', async () => {
         let renderedPosts = wrapper.findAll('.post')

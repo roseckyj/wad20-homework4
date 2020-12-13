@@ -99,32 +99,40 @@ jest.mock("axios",  () => ({
 
 describe('Posts', () => {
 
-    const wrapper = mount(Posts, {posts: testData});
+    const wrapper = mount(Posts, {
+        posts: testData,
+        localVue,
+        router,
+        store
+    });
 
     it('Renders all the posts', async () => {
         let renderedPosts = wrapper.findAll('.post')
         expect(renderedPosts.length).toEqual(testData.length)
     });
 
+
     it("Renders media correctly", async() => {
-        let renderedPosts = wrapper.findAll('.post')
-        for (let i = 0; i < renderedPosts.length; i++) {
-            if (renderedPosts[i].media){
-                if (renderedPosts[i].media.type == "image"){
-                    expect(renderedPosts[i].media.tagName.toLowerCase()).toEqual("img")
-                } else{
-                    expect(renderedPosts[i].media.tagName.toLowerCase()).toEqual("video")
-                }
-            } else {
-                expect(renderedPosts[i].media).toBeNull()
-            }
-        }
+        const images = wrapper.findAll('.post-image')
+        const videos = wrapper.findAll('.post-video')
+        const allPosts = wrapper.findAll('.post')
+
+        const testImages = testData.filter(item => item.media && item.media.type == "image")
+        const testVideos = testData.filter(item => item.media && item.media.type == "video")
+        const testNoMedia = testData.filter(item => !item.media)
+
+        expect(images.length).toEqual(testImages.length)
+        expect(videos.length).toEqual(testVideos.length)
+        expect(allPosts.length-images.length-videos.length).toEqual(testNoMedia.length)
     })
 
     it("Formats dates correctly", async() => {
-        let renderedPosts = wrapper.findAll('.post')
-        for (let i = 0; i < renderedPosts.length; i++){
-            expect(testData[i].createTime).toEqual(renderedPosts[i].createTime)
+        let dates = wrapper.findAll('.post-date')
+
+        for (let i = 0; i < dates.length; i++) {
+            expect(dates.at(i).text()).toEqual(moment(testData[i].createTime).format('LLLL'))
         }
     })
+
+
 });

@@ -2,6 +2,7 @@ import {mount, createLocalVue} from '@vue/test-utils'
 import Vuex from 'vuex'
 import VueRouter from 'vue-router'
 import Posts from "../../src/components/Posts.vue";
+import moment from "moment";
 
 const localVue = createLocalVue();
 
@@ -90,17 +91,40 @@ const testData = [
 ];
 
 //Mock axios.get method that our Component calls in mounted event
-jest.mock("axios", () => ({
-    get: () => Promise.resolve({
-        data: testData
-    })
+jest.mock("axios",  () => ({
+    get: ()=> Promise.resolve({
+            data: testData
+        })
 }));
 
 describe('Posts', () => {
 
-    const wrapper = mount(Posts, {router, store, localVue});
+    const wrapper = mount(Posts, {posts: testData});
 
-    it('1 == 1', function () {
-        expect(true).toBe(true)
+    it('Renders all the posts', async () => {
+        let renderedPosts = wrapper.findAll('.post')
+        expect(renderedPosts.length).toEqual(testData.length)
     });
+
+    it("Renders media correctly", async() => {
+        let renderedPosts = wrapper.findAll('.post')
+        for (let i = 0; i < renderedPosts.length; i++) {
+            if (renderedPosts[i].media){
+                if (renderedPosts[i].media.type == "image"){
+                    expect(renderedPosts[i].media.tagName.toLowerCase()).toEqual("img")
+                } else{
+                    expect(renderedPosts[i].media.tagName.toLowerCase()).toEqual("video")
+                }
+            } else {
+                expect(renderedPosts[i].media).toBeNull()
+            }
+        }
+    })
+
+    it("Formats dates correctly", async() => {
+        let renderedPosts = wrapper.findAll('.post')
+        for (let i = 0; i < renderedPosts.length; i++){
+            expect(testData[i].createTime).toEqual(renderedPosts[i].createTime)
+        }
+    })
 });
